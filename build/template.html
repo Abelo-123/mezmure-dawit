@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="am" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>መዝሙረ ዳዊት · Mezmure Dawit</title>
+<style>
+:root{
+  --bg:#f6f0e4; --panel:#efe7d6; --ink:#2b2118; --dim:#7b6c58; --accent:#7a2e2e; --line:#d9ccb2;
+  --btn:#e9dfca; --btnink:#2b2118; --hi:#fff3c9;
+  --fs:22px;
+}
+:root[data-theme="dark"]{
+  --bg:#1a1612; --panel:#231e18; --ink:#e9dcc3; --dim:#a39378; --accent:#d9a86a; --line:#3a3128;
+  --btn:#2c251d; --btnink:#e9dcc3; --hi:#3b3322;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink)}
+body{font-family:"Noto Sans Ethiopic","Abyssinica SIL","Nyala","Kefa","Ebrima",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  overscroll-behavior:none}
+button{font:inherit;color:var(--btnink);background:var(--btn);border:1px solid var(--line);border-radius:12px;
+  min-height:46px;padding:0 12px;cursor:pointer}
+button:active{filter:brightness(.92)}
+button.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+[hidden]{display:none!important}
+
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;
+  padding-top:env(safe-area-inset-top)}
+#top{padding:8px 52px 6px;text-align:center;border-bottom:1px solid var(--line);position:relative}
+#title{background:none;border:none;font-size:1.25rem;font-weight:700;color:var(--accent);min-height:44px;width:100%}
+#markBtn{position:absolute;right:8px;top:8px;width:44px;min-height:44px;padding:0;background:none;border:none;font-size:1.6rem;color:var(--accent);line-height:1}
+.setrow{display:flex;align-items:center;gap:10px;margin:8px 0}
+.setrow label{flex:1}
+.setrow label small{color:var(--dim)}
+.setrow input{width:84px;font:inherit;font-size:1.05rem;text-align:center;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.setrow.now label{color:var(--accent);font-weight:700}
+#settingsOv h3{margin:22px 0 6px;font-size:.95rem;color:var(--accent)}
+#fsval{min-width:3em;text-align:center}
+#sub{font-size:.82rem;color:var(--dim);line-height:1.4;margin-top:-2px}
+#warn{font-size:.78rem;color:var(--accent);margin-top:2px}
+#text{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 24px;max-width:46rem;width:100%;margin:0 auto}
+.v{padding:8px 4px;border-radius:10px;cursor:pointer;line-height:1.75;font-size:var(--fs)}
+.v+.v{border-top:1px dotted var(--line)}
+.v.flash{background:var(--hi)}
+.v .n{color:var(--accent);font-size:.62em;font-weight:700;margin-right:.55em;vertical-align:.25em;user-select:none}
+.v .dot{color:var(--accent);font-size:.6em;margin-left:.4em;vertical-align:.2em}
+.v .a{font-size:.8em;color:var(--dim);line-height:1.65;margin:.35em 0 .15em 1.4em;padding-left:.7em;border-left:2px solid var(--line)}
+.v .a.none{opacity:.5}
+.hint{text-align:center;color:var(--dim);font-size:.8rem;margin-top:18px}
+#bar{border-top:1px solid var(--line);background:var(--panel);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+.row{display:flex;gap:8px}
+.row+.row{margin-top:8px}
+.row>button{flex:1;white-space:nowrap}
+#bar .big>button{font-size:1.02rem;min-height:50px}
+#bar .small>button{font-size:.88rem;min-height:42px;padding:0 4px}
+
+/* overlays */
+.ov{position:fixed;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top)}
+.ov>header{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line)}
+.ov>header h2{flex:1;margin:0;font-size:1.05rem;color:var(--accent)}
+.ov>.body{flex:1;overflow-y:auto;padding:12px 14px calc(18px + env(safe-area-inset-bottom));max-width:46rem;width:100%;margin:0 auto}
+textarea{width:100%;min-height:130px;font:inherit;font-size:1.05rem;line-height:1.5;color:var(--ink);background:var(--panel);
+  border:1px solid var(--line);border-radius:12px;padding:10px;resize:vertical}
+.quote{color:var(--dim);font-size:.95rem;line-height:1.6;margin:0 0 10px;padding-left:10px;border-left:3px solid var(--accent)}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 12px;margin:10px 0}
+.card .meta{font-size:.78rem;color:var(--dim);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card .txt{white-space:pre-wrap;margin:6px 0 0;line-height:1.55;font-size:1rem}
+.card .acts{display:flex;gap:8px;margin-top:8px}
+.card .acts button{min-height:36px;font-size:.85rem}
+.grp{margin:18px 0 4px;font-weight:700;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px}
+.grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:56px;padding:2px;line-height:1.15}
+.grid button small{color:var(--dim);font-size:.7rem}
+.grid button.on small{color:inherit}
+.jump{display:flex;gap:8px;margin-bottom:12px}
+.jump input{flex:1;font:inherit;font-size:1.05rem;padding:0 12px;min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.empty{color:var(--dim);text-align:center;margin-top:40px}
+#toast{position:fixed;left:50%;bottom:calc(120px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:20px;z-index:60;max-width:88%;font-size:.9rem;text-align:center}
+
+/* prayer mode */
+#prayer{z-index:40;padding:0}
+#prayer .scroll{flex:1;overflow-y:auto;padding:calc(34px + env(safe-area-inset-top)) 22px 60px;max-width:46rem;width:100%;margin:0 auto}
+#prayer h1{font-size:1rem;font-weight:600;color:var(--dim);text-align:center;margin:0 0 14px;letter-spacing:.04em}
+#prayer .v{cursor:default;border:none;padding:10px 4px;font-size:calc(var(--fs) * 1.08);line-height:1.9}
+#prayer .v+.v{border:none}
+#pexit{position:fixed;top:calc(8px + env(safe-area-inset-top));right:10px;min-height:34px;width:34px;padding:0;border-radius:17px;
+  font-size:1rem;opacity:.35;background:transparent;border:1px solid var(--line)}
+#pexit:active,#pexit:hover{opacity:.9}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <button id="title" aria-label="Choose psalm"></button>
+    <button id="markBtn" aria-label="Mark this psalm">☆</button>
+    <div id="sub"></div>
+    <div id="warn" hidden></div>
+  </div>
+  <main id="text" lang="gez"></main>
+  <nav id="bar">
+    <div class="row big">
+      <button id="prev">‹ Previous</button>
+      <button id="amh">Amharic</button>
+      <button id="note">Note</button>
+      <button id="next">Next ›</button>
+    </div>
+    <div class="row small">
+      <button id="today">Today</button>
+      <button id="gomark" aria-label="Go to mark">★</button>
+      <button id="mynotes">My notes</button>
+      <button id="pray">Prayer</button>
+      <button id="settings" aria-label="Settings" style="flex:.6">⚙</button>
+    </div>
+  </nav>
+</div>
+
+<!-- psalm picker -->
+<div id="picker" class="ov" hidden>
+  <header><h2>Choose psalm · መዝሙር ምረጥ</h2><button data-close>Close</button></header>
+  <div class="body">
+    <form class="jump" id="jumpform"><input id="jumpnum" type="number" inputmode="numeric" min="1" placeholder="Psalm number"><button class="primary" type="submit">Go</button></form>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<!-- note sheet -->
+<div id="sheet" class="ov" hidden>
+  <header><h2 id="sheetTitle"></h2><button data-close>Close</button></header>
+  <div class="body">
+    <p class="quote" id="sheetQuote" hidden></p>
+    <textarea id="noteText" placeholder="Write a reflection…"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="saveNote">Save note</button>
+      <button id="cancelEdit" hidden>Cancel edit</button>
+    </div>
+    <div id="sheetList"></div>
+  </div>
+</div>
+
+<!-- my notes -->
+<div id="notesOv" class="ov" hidden>
+  <header><h2>My notes · ማስታወሻዎቼ</h2><button id="openBackup">Backup</button><button data-close>Close</button></header>
+  <div class="body" id="notesBody"></div>
+</div>
+
+<!-- backup -->
+<div id="backup" class="ov" hidden style="z-index:30">
+  <header><h2>Backup · ምትኬ</h2><button data-close>Close</button></header>
+  <div class="body">
+    <div class="row"><button class="primary" id="exportBtn">Export .json</button><button id="copyBtn">Copy</button></div>
+    <div class="row"><button id="importBtn">Import file…</button><button id="importTextBtn">Import from text</button></div>
+    <input type="file" id="importFile" accept=".json,application/json,text/plain" hidden>
+    <p class="hint" style="text-align:left">If saving a file doesn't work in your app, use Copy, and paste the text into a note on your phone. To restore, paste it below and tap "Import from text". Import adds notes and never deletes any.</p>
+    <textarea id="backupText" placeholder="Backup text appears here / paste a backup to import"></textarea>
+  </div>
+</div>
+
+<!-- settings -->
+<div id="settingsOv" class="ov" hidden>
+  <header><h2>Settings · ማስተካከያ</h2><button data-close>Close</button></header>
+  <div class="body">
+    <h3>Text size</h3>
+    <div class="row"><button id="fm" aria-label="Smaller text">A−</button><span id="fsval" style="align-self:center"></span><button id="fp" aria-label="Larger text">A+</button></div>
+    <h3>Appearance</h3>
+    <div class="row"><button id="theme"></button></div>
+    <h3>“Today” – first psalm for each day</h3>
+    <div id="todayRows"></div>
+    <div class="row" style="margin-top:10px"><button id="todayReset" style="white-space:normal;padding:8px 10px">Reset to default (Mon 1, Tue 31, Wed 61, Thu 81, Fri 111, Sat 131)</button></div>
+  </div>
+</div>
+
+<!-- prayer mode -->
+<div id="prayer" class="ov" hidden>
+  <button id="pexit" aria-label="Exit prayer mode">✕</button>
+  <div class="scroll" id="pscroll" lang="gez"><h1 id="ptitle"></h1><div id="pbody"></div></div>
+</div>
+
+<div id="toast" hidden></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+</script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- constants ---------- */
+// Default weekly cycle (index = JS getDay(): 0 Sunday … 6 Saturday). Editable in Settings.
+const TODAY_DEFAULT = [1, 1, 31, 61, 81, 111, 131];
+const DAYS = [['እሑድ','Sunday'],['ሰኞ','Monday'],['ማክሰኞ','Tuesday'],['ረቡዕ','Wednesday'],['ሐሙስ','Thursday'],['ዓርብ','Friday'],['ቅዳሜ','Saturday']];
+const NOTES_KEY='mezmure.notes.v1', LAST_KEY='mezmure.last', FS_KEY='mezmure.fs', THEME_KEY='mezmure.theme', AMH_KEY='mezmure.amh',
+      TODAY_KEY='mezmure.today', MARK_KEY='mezmure.mark';
+const MAX = DATA.length;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const ONES = ['','፩','፪','፫','፬','፭','፮','፯','፰','፱'];
+const TENS = ['','፲','፳','፴','፵','፶','፷','፸','፹','፺'];
+function eth(n){
+  if(!(n>0)) return String(n);
+  let s=''; const h=Math.floor(n/100), r=n%100;
+  if(h){ s += (h>1?ONES[h]:'') + '፻'; }
+  return s + TENS[Math.floor(r/10)] + ONES[r%10];
+}
+const mem = {};
+const store = {
+  get(k){ try{ const v=localStorage.getItem(k); if(v!==null) return v; }catch(e){} return k in mem ? mem[k] : null; },
+  set(k,v){ mem[k]=v; try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+};
+let toastT;
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>{t.hidden=true},2600); }
+const P = n => DATA[n-1];
+const rowsCache = {};
+function rows(n){
+  if(rowsCache[n]) return rowsCache[n];
+  const p=P(n), m=new Map();
+  for(const [v,t] of p.g){ if(!m.has(v)) m.set(v,{n:v,g:[],a:[]}); m.get(v).g.push(t); }
+  for(const [v,t] of p.a){ if(!m.has(v)) m.set(v,{n:v,g:[],a:[]}); m.get(v).a.push(t); }
+  return rowsCache[n] = [...m.values()].sort((x,y)=>x.n-y.n);
+}
+function titleOf(n){ return 'መዝሙር ' + eth(n) + ' / Psalm ' + n; }
+function fmtDate(iso){
+  try{ const d=new Date(iso); return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) + ' · ' + d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'}); }
+  catch(e){ return iso; }
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+/* ---------- state ---------- */
+let cur = 1, showAm = false, fs = 22, prayer = false, storageOK = true, mark = null;
+let todayMap = TODAY_DEFAULT.slice();
+function loadToday(){
+  try{ const a=JSON.parse(store.get(TODAY_KEY)||'null'); if(Array.isArray(a) && a.length===7 && a.every(x=>Number.isInteger(x) && x>=1)) return a; }catch(e){}
+  return TODAY_DEFAULT.slice();
+}
+let notes = [];
+function loadNotes(){
+  try{ const a = JSON.parse(store.get(NOTES_KEY) || '[]'); return Array.isArray(a) ? a.filter(validNote) : []; }catch(e){ return []; }
+}
+function validNote(x){ return x && Number.isInteger(x.psalm) && x.psalm>=1 && typeof x.text==='string' && typeof x.date==='string' && (x.verse===null || x.verse===undefined || Number.isInteger(x.verse)); }
+function saveNotes(){ if(!store.set(NOTES_KEY, JSON.stringify(notes)) && storageOK){ storageOK=false; toast('Storage is unavailable – notes will be lost when you close the app. Use Backup.'); } }
+const notesFor = (psalm, verse) => notes.filter(n => n.psalm===psalm && (n.verse==null ? null : n.verse) === verse).sort((a,b)=> b.date < a.date ? -1 : 1);
+
+/* ---------- rendering ---------- */
+function verseNode(r, withAm, forPrayer){
+  const d=document.createElement('div'); d.className='v'; d.dataset.n=r.n;
+  const n=document.createElement('span'); n.className='n'; n.textContent=eth(r.n); d.appendChild(n);
+  const g=document.createElement('span'); g.className='g'; g.textContent = r.g.join(' '); d.appendChild(g);
+  if(!forPrayer && notesFor(cur,r.n).length){ const dot=document.createElement('span'); dot.className='dot'; dot.textContent='●'; d.appendChild(dot); }
+  if(withAm){
+    const a=document.createElement('div'); a.className='a'; a.setAttribute('lang','am');
+    if(r.a.length) a.textContent=r.a.join(' '); else { a.textContent='—'; a.classList.add('none'); }
+    d.appendChild(a);
+  }
+  return d;
+}
+function render(keepScroll){
+  const p=P(cur), rs=rows(cur);
+  $('title').textContent = titleOf(cur) + ' ▾';
+  const sub=$('sub'); sub.textContent = p.sub.join(' · '); sub.hidden = !p.sub.length;
+  const w=$('warn');
+  if(p.g.length !== p.a.length){ w.hidden=false; w.textContent='Ge’ez has '+p.g.length+' verses, Amharic has '+p.a.length+' in the source text – matched by verse number.'; } else w.hidden=true;
+  const box=$('text'); box.replaceChildren();
+  rs.forEach(r => box.appendChild(verseNode(r, showAm, false)));
+  const h=document.createElement('div'); h.className='hint'; h.textContent='ቁጥር ላይ መታ ያድርጉ · Tap a verse to add a note'; box.appendChild(h);
+  if(!keepScroll) box.scrollTop=0;
+  $('amh').classList.toggle('on', showAm);
+  const pn=notesFor(cur,null).length; $('note').textContent = pn ? 'Note ('+pn+')' : 'Note';
+  $('prev').disabled = cur<=1; $('next').disabled = cur>=MAX;
+  $('prev').style.opacity = cur<=1 ? .45 : 1; $('next').style.opacity = cur>=MAX ? .45 : 1;
+  const marked = mark===cur;
+  $('markBtn').textContent = marked ? '★' : '☆';
+  $('markBtn').setAttribute('aria-label', marked ? 'Remove mark' : 'Mark this psalm');
+  $('gomark').textContent = mark ? '★ ' + mark : '★';
+  $('gomark').classList.toggle('on', marked);
+  if(prayer) renderPrayer(keepScroll);
+}
+function renderPrayer(keepScroll){
+  $('ptitle').textContent = titleOf(cur);
+  const b=$('pbody'); b.replaceChildren();
+  rows(cur).forEach(r => { if(r.g.length) b.appendChild(verseNode({n:r.n,g:r.g,a:[]}, false, true)); });
+  if(!keepScroll) $('pscroll').scrollTop=0;
+}
+function go(n, quiet){
+  n = Math.round(n);
+  if(!(n>=1)) return false;
+  if(n>MAX){ toast('Psalm '+n+' is not in the text yet (the file has 1–'+MAX+').'); return false; }
+  cur=n; store.set(LAST_KEY, String(n)); render(); return true;
+}
+const next=()=>{ if(cur<MAX) go(cur+1); else toast('This is the last psalm in the text.'); };
+const prev=()=>{ if(cur>1) go(cur-1); };
+
+/* ---------- settings ---------- */
+function applyFs(){ document.documentElement.style.setProperty('--fs', fs+'px'); store.set(FS_KEY,String(fs)); $('fsval').textContent=fs+'px'; }
+function applyTheme(t){
+  document.documentElement.dataset.theme=t; $('theme').textContent = t==='dark' ? '☀ Light mode' : '☾ Dark mode'; store.set(THEME_KEY,t);
+  const m=document.querySelector('meta[name=color-scheme]'); if(m) m.content=t;
+}
+
+/* ---------- overlays ---------- */
+const stack=[];
+function openOv(id){ const el=$(id); el.hidden=false; if(!stack.includes(el)) stack.push(el); }
+function closeOv(el){ el.hidden=true; const i=stack.indexOf(el); if(i>=0) stack.splice(i,1); }
+document.addEventListener('click', e=>{ const c=e.target.closest('[data-close]'); if(c) closeOv(c.closest('.ov')); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(stack.length) closeOv(stack[stack.length-1]); else if(prayer) exitPrayer(); } });
+
+/* picker */
+function buildGrid(){
+  const g=$('grid'); g.replaceChildren();
+  for(let i=1;i<=MAX;i++){
+    const b=document.createElement('button'); b.dataset.n=i; b.classList.toggle('on',i===cur);
+    b.innerHTML='<span></span><small></small>'; b.firstChild.textContent=eth(i); b.lastChild.textContent=i;
+    g.appendChild(b);
+  }
+}
+$('title').onclick=()=>{ buildGrid(); $('jumpnum').value=''; openOv('picker'); const on=$('grid').querySelector('.on'); if(on) setTimeout(()=>on.scrollIntoView({block:'center'}),0); };
+$('grid').addEventListener('click', e=>{ const b=e.target.closest('button'); if(!b) return; closeOv($('picker')); go(+b.dataset.n); });
+$('jumpform').addEventListener('submit', e=>{ e.preventDefault(); const n=parseInt($('jumpnum').value,10); if(!n||n<1){ return; } if(go(n)) closeOv($('picker')); });
+
+/* ---------- notes ---------- */
+let target={v:null}, editing=null, armedDelete=null;
+function openNote(v){
+  target={v}; editing=null; armedDelete=null;
+  $('noteText').value=''; $('cancelEdit').hidden=true; $('saveNote').textContent='Save note';
+  $('sheetTitle').textContent = titleOf(cur) + (v!=null ? ' · ቁጥር ' + eth(v) + ' / v' + v : '');
+  const q=$('sheetQuote');
+  if(v!=null){ const r=rows(cur).find(x=>x.n===v); q.textContent = r ? r.g.join(' ') : ''; q.hidden=!r; } else q.hidden=true;
+  renderSheetList(); openOv('sheet');
+  setTimeout(()=>{ try{ $('noteText').focus(); }catch(e){} }, 50);
+}
+function renderSheetList(){
+  const L=$('sheetList'); L.replaceChildren();
+  const list=notesFor(cur,target.v);
+  if(!list.length){ const e=document.createElement('p'); e.className='empty'; e.textContent='No notes yet here.'; L.appendChild(e); return; }
+  list.forEach(n=>{
+    const c=document.createElement('div'); c.className='card';
+    c.innerHTML='<div class="meta"><span></span></div><div class="txt"></div><div class="acts"><button data-act="edit">Edit</button><button data-act="del">Delete</button></div>';
+    c.querySelector('.meta span').textContent=fmtDate(n.date); c.querySelector('.txt').textContent=n.text;
+    c.querySelector('[data-act=edit]').onclick=()=>{ editing=n.id; $('noteText').value=n.text; $('cancelEdit').hidden=false; $('saveNote').textContent='Update note'; $('noteText').focus(); window.scrollTo(0,0); };
+    const del=c.querySelector('[data-act=del]');
+    del.onclick=()=>{ if(armedDelete===n.id){ notes=notes.filter(x=>x.id!==n.id); saveNotes(); armedDelete=null; renderSheetList(); render(true); } else { armedDelete=n.id; del.textContent='Tap again to delete'; del.classList.add('primary'); } };
+    L.appendChild(c);
+  });
+}
+$('cancelEdit').onclick=()=>{ editing=null; $('noteText').value=''; $('cancelEdit').hidden=true; $('saveNote').textContent='Save note'; };
+$('saveNote').onclick=()=>{
+  const t=$('noteText').value.trim(); if(!t){ toast('Write something first.'); return; }
+  if(editing){ const n=notes.find(x=>x.id===editing); if(n){ n.text=t; n.edited=new Date().toISOString(); } editing=null; }
+  else notes.push({id:uid(), psalm:cur, verse:target.v, date:new Date().toISOString(), text:t});
+  saveNotes(); $('noteText').value=''; $('cancelEdit').hidden=true; $('saveNote').textContent='Save note';
+  renderSheetList(); render(true); toast('Saved');
+};
+$('note').onclick=()=>openNote(null);
+$('text').addEventListener('click', e=>{
+  const v=e.target.closest('.v'); if(!v) return;
+  const sel=window.getSelection && String(window.getSelection()); if(sel) return;
+  openNote(+v.dataset.n);
+});
+
+/* my notes */
+function renderNotesScreen(){
+  const B=$('notesBody'); B.replaceChildren();
+  if(!notes.length){ const e=document.createElement('p'); e.className='empty'; e.textContent='No notes yet. Tap “Note” on a psalm, or tap a verse.'; B.appendChild(e); return; }
+  const byP=new Map();
+  notes.forEach(n=>{ if(!byP.has(n.psalm)) byP.set(n.psalm,[]); byP.get(n.psalm).push(n); });
+  [...byP.keys()].sort((a,b)=>a-b).forEach(ps=>{
+    const h=document.createElement('div'); h.className='grp'; h.textContent=titleOf(ps); B.appendChild(h);
+    byP.get(ps).sort((a,b)=>{ const va=a.verse==null?-1:a.verse, vb=b.verse==null?-1:b.verse; return va-vb || (b.date<a.date?-1:1); })
+      .forEach(n=>{
+        const c=document.createElement('div'); c.className='card'; c.style.cursor='pointer';
+        c.innerHTML='<div class="meta"><span class="w"></span><span class="d"></span></div><div class="txt"></div>';
+        c.querySelector('.w').textContent = n.verse==null ? 'Whole psalm' : 'ቁጥር ' + eth(n.verse) + ' / v' + n.verse;
+        c.querySelector('.d').textContent = fmtDate(n.date);
+        c.querySelector('.txt').textContent = n.text;
+        c.onclick=()=>{ closeOv($('notesOv')); if(ps<=MAX){ go(ps); if(n.verse!=null){ const el=$('text').querySelector('.v[data-n="'+n.verse+'"]'); if(el){ el.scrollIntoView({block:'center'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),1800); } } } };
+        B.appendChild(c);
+      });
+  });
+}
+$('mynotes').onclick=()=>{ renderNotesScreen(); openOv('notesOv'); };
+
+/* backup */
+function backupJSON(){ return JSON.stringify({app:'mezmure-dawit', version:1, exported:new Date().toISOString(), notes}, null, 2); }
+$('openBackup').onclick=()=>{ $('backupText').value=''; openOv('backup'); };
+$('exportBtn').onclick=()=>{
+  const json=backupJSON();
+  try{
+    const blob=new Blob([json],{type:'application/json'}), url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download='mezmure-notes-'+new Date().toISOString().slice(0,10)+'.json'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000); toast('Backup file created ('+notes.length+' notes)');
+  }catch(e){ $('backupText').value=json; toast('Could not save a file – use the text below / Copy.'); }
+};
+$('copyBtn').onclick=async()=>{
+  const json=backupJSON(); $('backupText').value=json;
+  try{ await navigator.clipboard.writeText(json); toast('Copied'); }catch(e){ try{ $('backupText').select(); document.execCommand('copy'); toast('Copied'); }catch(e2){ toast('Select the text below and copy it.'); } }
+};
+function importJSON(text){
+  let obj; try{ obj=JSON.parse(text); }catch(e){ toast('That is not valid backup text.'); return; }
+  const arr = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.notes) ? obj.notes : null);
+  if(!arr){ toast('No notes found in that backup.'); return; }
+  const ids=new Set(notes.map(n=>n.id)), sig=new Set(notes.map(n=>n.psalm+'|'+n.verse+'|'+n.date+'|'+n.text));
+  let add=0, skip=0;
+  arr.forEach(x=>{
+    if(!validNote(x)){ skip++; return; }
+    const n={id:typeof x.id==='string'&&x.id?x.id:uid(), psalm:x.psalm, verse:x.verse==null?null:x.verse, date:x.date, text:x.text};
+    if(x.edited) n.edited=x.edited;
+    const s=n.psalm+'|'+n.verse+'|'+n.date+'|'+n.text;
+    if(ids.has(n.id)||sig.has(s)){ skip++; return; }
+    ids.add(n.id); sig.add(s); notes.push(n); add++;
+  });
+  saveNotes(); render(true); toast('Imported '+add+' note'+(add===1?'':'s')+(skip?' ('+skip+' skipped)':''));
+}
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importJSON(String(r.result)); r.onerror=()=>toast('Could not read the file.'); r.readAsText(f); e.target.value=''; };
+$('importTextBtn').onclick=()=>{ const t=$('backupText').value.trim(); if(!t){ toast('Paste the backup text first.'); return; } importJSON(t); };
+
+/* ---------- prayer mode ---------- */
+let wl=null;
+async function lock(){ try{ if('wakeLock' in navigator){ wl=await navigator.wakeLock.request('screen'); wl.addEventListener('release',()=>{ wl=null; }); } }catch(e){ wl=null; } }
+function unlock(){ try{ if(wl) wl.release(); }catch(e){} wl=null; }
+document.addEventListener('visibilitychange',()=>{ if(prayer && document.visibilityState==='visible' && !wl) lock(); });
+function enterPrayer(){ prayer=true; renderPrayer(); $('prayer').hidden=false; lock(); try{ const f=document.documentElement.requestFullscreen; if(f) f.call(document.documentElement).catch(()=>{}); }catch(e){} }
+function exitPrayer(){ prayer=false; $('prayer').hidden=true; unlock(); try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){} render(true); }
+$('pray').onclick=enterPrayer; $('pexit').onclick=exitPrayer;
+
+/* ---------- buttons ---------- */
+$('next').onclick=next; $('prev').onclick=prev;
+$('amh').onclick=()=>{ showAm=!showAm; store.set(AMH_KEY, showAm?'1':'0'); render(true); };
+$('today').onclick=()=>{
+  const d=new Date().getDay(), t=todayMap[d];
+  if(go(t)) toast(DAYS[d][0]+' · '+DAYS[d][1]+' → '+titleOf(t));
+};
+
+/* mark (one ribbon at a time) */
+$('markBtn').onclick=()=>{
+  if(mark===cur){ mark=null; store.set(MARK_KEY,''); toast('Mark removed'); }
+  else { const old=mark; mark=cur; store.set(MARK_KEY,String(cur)); toast(old ? 'Mark moved from Psalm '+old+' to Psalm '+cur : 'Marked · '+titleOf(cur)); }
+  render(true);
+};
+$('gomark').onclick=()=>{
+  if(!mark){ toast('No mark yet – tap ☆ at the top to mark a psalm.'); return; }
+  if(mark===cur){ toast('You are at your mark.'); return; }
+  if(go(mark)) toast('★ '+titleOf(mark));
+};
+
+/* settings */
+function renderTodayRows(){
+  const box=$('todayRows'); box.replaceChildren(); const now=new Date().getDay();
+  [1,2,3,4,5,6,0].forEach(d=>{
+    const r=document.createElement('div'); r.className='setrow'+(d===now?' now':'');
+    r.innerHTML='<label></label><input type="number" inputmode="numeric" min="1">';
+    const lab=r.querySelector('label'); lab.textContent=DAYS[d][0]+' · '+DAYS[d][1]+' ';
+    const sm=document.createElement('small'); sm.textContent = d===now ? '(today)' : ''; lab.appendChild(sm);
+    const inp=r.querySelector('input'); inp.value=todayMap[d]; inp.setAttribute('aria-label',DAYS[d][1]);
+    inp.onchange=()=>{
+      const v=parseInt(inp.value,10);
+      if(!(v>=1)){ inp.value=todayMap[d]; toast('Enter a psalm number.'); return; }
+      todayMap[d]=v; store.set(TODAY_KEY, JSON.stringify(todayMap));
+      if(v>MAX) toast('Saved. Psalm '+v+' is not in the text yet.'); else toast(DAYS[d][1]+' → Psalm '+v);
+    };
+    box.appendChild(r);
+  });
+}
+$('settings').onclick=()=>{ renderTodayRows(); openOv('settingsOv'); };
+$('todayReset').onclick=()=>{ todayMap=TODAY_DEFAULT.slice(); store.set(TODAY_KEY, JSON.stringify(todayMap)); renderTodayRows(); toast('Reset to the default cycle'); };
+$('fm').onclick=()=>{ fs=Math.max(14,fs-2); applyFs(); };
+$('fp').onclick=()=>{ fs=Math.min(48,fs+2); applyFs(); };
+$('theme').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+
+/* ---------- swipe ---------- */
+function swipe(el){
+  let x0=null,y0=0,t0=0,multi=false;
+  el.addEventListener('touchstart',e=>{ if(e.touches.length!==1){ multi=true; return; } multi=false; x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now(); },{passive:true});
+  el.addEventListener('touchend',e=>{
+    if(multi||x0===null) return;
+    const t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0; x0=null;
+    if(Math.abs(dx)>70 && Math.abs(dx)>Math.abs(dy)*1.8 && Date.now()-t0<900){ if(dx<0) next(); else prev(); }
+  },{passive:true});
+}
+swipe($('text')); swipe($('pscroll'));
+
+/* ---------- init ---------- */
+(function init(){
+  const f=parseInt(store.get(FS_KEY),10); if(f>=14 && f<=48) fs=f; applyFs();
+  let th=store.get(THEME_KEY);
+  if(th!=='dark' && th!=='light') th = (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  applyTheme(th);
+  showAm = store.get(AMH_KEY)==='1';
+  notes = loadNotes();
+  todayMap = loadToday();
+  const mk=parseInt(store.get(MARK_KEY),10); if(mk>=1 && mk<=MAX) mark=mk;
+  // open at the mark if there is one, otherwise at the last psalm read
+  const last=parseInt(store.get(LAST_KEY),10);
+  if(mark) cur=mark; else if(last>=1 && last<=MAX) cur=last;
+  render();
+  window.__app = { go, rows, get cur(){return cur;}, get mark(){return mark;}, MAX, eth, setAm(v){showAm=v;render();} }; // used by build tests
+})();
+})();
+</script>
+</body>
+</html>
