@@ -30,6 +30,12 @@ button.primary{background:var(--accent);color:var(--bg);border-color:var(--accen
   padding-top:env(safe-area-inset-top)}
 #top{padding:8px 52px 6px;text-align:center;border-bottom:1px solid var(--line);position:relative}
 #title{background:none;border:none;font-size:1.25rem;font-weight:700;color:var(--accent);min-height:44px;width:100%}
+#favBtn{position:absolute;left:8px;top:8px;width:44px;min-height:44px;padding:0;background:none;border:none;font-size:1.5rem;color:var(--accent);line-height:1}
+.fav{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 8px 8px 12px;margin:8px 0;cursor:pointer}
+.fav .t{flex:1;min-width:0}
+.fav .t b{color:var(--accent);display:block}
+.fav .t span{color:var(--dim);font-size:.85rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav button{min-height:40px;width:44px;padding:0;flex:none}
 #markBtn{position:absolute;right:8px;top:8px;width:44px;min-height:44px;padding:0;background:none;border:none;font-size:1.6rem;color:var(--accent);line-height:1}
 .setrow{display:flex;align-items:center;gap:10px;margin:8px 0}
 .setrow label{flex:1}
@@ -97,6 +103,7 @@ textarea{width:100%;min-height:130px;font:inherit;font-size:1.05rem;line-height:
   <div id="top">
     <button id="title" aria-label="Choose psalm"></button>
     <button id="markBtn" aria-label="Mark this psalm">☆</button>
+    <button id="favBtn" aria-label="Add to favourites">♡</button>
     <div id="sub"></div>
     <div id="warn" hidden></div>
   </div>
@@ -111,6 +118,7 @@ textarea{width:100%;min-height:130px;font:inherit;font-size:1.05rem;line-height:
     <div class="row small">
       <button id="today">Today</button>
       <button id="gomark" aria-label="Go to mark">★</button>
+      <button id="favs" aria-label="Favourites" style="flex:.6">♥</button>
       <button id="mynotes">My notes</button>
       <button id="pray">Prayer</button>
       <button id="settings" aria-label="Settings" style="flex:.6">⚙</button>
@@ -159,6 +167,15 @@ textarea{width:100%;min-height:130px;font:inherit;font-size:1.05rem;line-height:
   </div>
 </div>
 
+<!-- favourites -->
+<div id="favOv" class="ov" hidden>
+  <header><h2>Favourites · የምወዳቸው</h2><button data-close>Close</button></header>
+  <div class="body">
+    <div class="row"><button class="primary" id="favAddCur"></button></div>
+    <div id="favList"></div>
+  </div>
+</div>
+
 <!-- settings -->
 <div id="settingsOv" class="ov" hidden>
   <header><h2>Settings · ማስተካከያ</h2><button data-close>Close</button></header>
@@ -193,7 +210,7 @@ const DATA = /*__DATA__*/null;
 const TODAY_DEFAULT = [1, 1, 31, 61, 81, 111, 131];
 const DAYS = [['እሑድ','Sunday'],['ሰኞ','Monday'],['ማክሰኞ','Tuesday'],['ረቡዕ','Wednesday'],['ሐሙስ','Thursday'],['ዓርብ','Friday'],['ቅዳሜ','Saturday']];
 const NOTES_KEY='mezmure.notes.v1', LAST_KEY='mezmure.last', FS_KEY='mezmure.fs', THEME_KEY='mezmure.theme', AMH_KEY='mezmure.amh',
-      TODAY_KEY='mezmure.today', MARK_KEY='mezmure.mark';
+      TODAY_KEY='mezmure.today', MARK_KEY='mezmure.mark', FAV_KEY='mezmure.favs';
 const MAX = DATA.length;
 
 /* ---------- helpers ---------- */
@@ -232,6 +249,12 @@ function uid(){ return Date.now().toString(36) + Math.random().toString(36).slic
 /* ---------- state ---------- */
 let cur = 1, showAm = false, fs = 22, prayer = false, storageOK = true, mark = null;
 let todayMap = TODAY_DEFAULT.slice();
+let favs = [];
+function loadFavs(){
+  try{ const a=JSON.parse(store.get(FAV_KEY)||'[]'); if(Array.isArray(a)) return [...new Set(a.filter(x=>Number.isInteger(x)&&x>=1))].sort((x,y)=>x-y); }catch(e){}
+  return [];
+}
+function saveFavs(){ favs.sort((x,y)=>x-y); store.set(FAV_KEY, JSON.stringify(favs)); }
 function loadToday(){
   try{ const a=JSON.parse(store.get(TODAY_KEY)||'null'); if(Array.isArray(a) && a.length===7 && a.every(x=>Number.isInteger(x) && x>=1)) return a; }catch(e){}
   return TODAY_DEFAULT.slice();
@@ -276,6 +299,9 @@ function render(keepScroll){
   $('markBtn').setAttribute('aria-label', marked ? 'Remove mark' : 'Mark this psalm');
   $('gomark').textContent = mark ? '★ ' + mark : '★';
   $('gomark').classList.toggle('on', marked);
+  const isFav = favs.includes(cur);
+  $('favBtn').textContent = isFav ? '♥' : '♡';
+  $('favBtn').setAttribute('aria-label', isFav ? 'Remove from favourites' : 'Add to favourites');
   if(prayer) renderPrayer(keepScroll);
 }
 function renderPrayer(keepScroll){
@@ -383,7 +409,7 @@ function renderNotesScreen(){
 $('mynotes').onclick=()=>{ renderNotesScreen(); openOv('notesOv'); };
 
 /* backup */
-function backupJSON(){ return JSON.stringify({app:'mezmure-dawit', version:1, exported:new Date().toISOString(), notes}, null, 2); }
+function backupJSON(){ return JSON.stringify({app:'mezmure-dawit', version:1, exported:new Date().toISOString(), notes, favourites:favs}, null, 2); }
 $('openBackup').onclick=()=>{ $('backupText').value=''; openOv('backup'); };
 $('exportBtn').onclick=()=>{
   const json=backupJSON();
@@ -399,7 +425,7 @@ $('copyBtn').onclick=async()=>{
 };
 function importJSON(text){
   let obj; try{ obj=JSON.parse(text); }catch(e){ toast('That is not valid backup text.'); return; }
-  const arr = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.notes) ? obj.notes : null);
+  const arr = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.notes) ? obj.notes : (obj && Array.isArray(obj.favourites) ? [] : null));
   if(!arr){ toast('No notes found in that backup.'); return; }
   const ids=new Set(notes.map(n=>n.id)), sig=new Set(notes.map(n=>n.psalm+'|'+n.verse+'|'+n.date+'|'+n.text));
   let add=0, skip=0;
@@ -411,7 +437,10 @@ function importJSON(text){
     if(ids.has(n.id)||sig.has(s)){ skip++; return; }
     ids.add(n.id); sig.add(s); notes.push(n); add++;
   });
-  saveNotes(); render(true); toast('Imported '+add+' note'+(add===1?'':'s')+(skip?' ('+skip+' skipped)':''));
+  let favAdd=0;
+  if(obj && Array.isArray(obj.favourites)) obj.favourites.forEach(n=>{ if(Number.isInteger(n) && n>=1 && !favs.includes(n)){ favs.push(n); favAdd++; } });
+  if(favAdd) saveFavs();
+  saveNotes(); render(true); toast('Imported '+add+' note'+(add===1?'':'s')+(skip?' ('+skip+' skipped)':'')+(favAdd?', '+favAdd+' favourite'+(favAdd===1?'':'s'):''));
 }
 $('importBtn').onclick=()=>$('importFile').click();
 $('importFile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>importJSON(String(r.result)); r.onerror=()=>toast('Could not read the file.'); r.readAsText(f); e.target.value=''; };
@@ -445,6 +474,32 @@ $('gomark').onclick=()=>{
   if(mark===cur){ toast('You are at your mark.'); return; }
   if(go(mark)) toast('★ '+titleOf(mark));
 };
+
+/* favourites */
+function toggleFav(n){
+  if(favs.includes(n)){ favs=favs.filter(x=>x!==n); toast('Removed from favourites · Psalm '+n); }
+  else { favs.push(n); toast('♥ Added to favourites · Psalm '+n); }
+  saveFavs(); render(true); if(!$('favOv').hidden) renderFavs();
+}
+function renderFavs(){
+  $('favAddCur').textContent = favs.includes(cur) ? '♥ Psalm '+cur+' is a favourite' : '♡ Add Psalm '+cur+' to favourites';
+  $('favAddCur').disabled = favs.includes(cur);
+  const L=$('favList'); L.replaceChildren();
+  if(!favs.length){ const e=document.createElement('p'); e.className='empty'; e.textContent='No favourites yet. Tap ♡ at the top of a psalm.'; L.appendChild(e); return; }
+  favs.forEach(n=>{
+    const d=document.createElement('div'); d.className='fav';
+    d.innerHTML='<div class="t"><b></b><span lang="gez"></span></div><button aria-label="Remove">✕</button>';
+    d.querySelector('b').textContent=titleOf(n);
+    const first = n<=MAX ? rows(n).find(r=>r.g.length) : null;
+    d.querySelector('span').textContent = first ? first.g.join(' ') : '(not in the text yet)';
+    d.onclick=e=>{ if(e.target.closest('button')) return; closeOv($('favOv')); go(n); };
+    d.querySelector('button').onclick=()=>toggleFav(n);
+    L.appendChild(d);
+  });
+}
+$('favBtn').onclick=()=>toggleFav(cur);
+$('favs').onclick=()=>{ renderFavs(); openOv('favOv'); };
+$('favAddCur').onclick=()=>{ if(!favs.includes(cur)) toggleFav(cur); };
 
 /* settings */
 function renderTodayRows(){
@@ -491,6 +546,7 @@ swipe($('text')); swipe($('pscroll'));
   showAm = store.get(AMH_KEY)==='1';
   notes = loadNotes();
   todayMap = loadToday();
+  favs = loadFavs();
   const mk=parseInt(store.get(MARK_KEY),10); if(mk>=1 && mk<=MAX) mark=mk;
   // open at the mark if there is one, otherwise at the last psalm read
   const last=parseInt(store.get(LAST_KEY),10);
